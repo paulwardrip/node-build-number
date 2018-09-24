@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 "use strict";
 
 (() => {
@@ -12,12 +14,13 @@
     const resolve_package_metadata = () => {
 
         const package_resolvers = [
-            () => {
-                return path.dirname(require.main.filename);
-            },
 
             () => {
                 return process.cwd();
+            },
+
+            () => {
+                return path.dirname(require.main.filename);
             },
 
             () => {
@@ -39,10 +42,15 @@
     const node_meta = require(package_dir + package_file);
 
     function write_meta() {
-        let build = {
-            number: (!node_meta.build ? 1 : node_meta.build.number + 1),
+
+        let __br = git_branch();
+        let __n = (!node_meta.build ? 1 : node_meta.build.number + 1);
+
+        node_meta.build = {
+            unique: node_meta.name + ":v" + node_meta.version + "-" + __br + "[build:" + __n + "]",
+            number: __n,
             timestamp: new Date().toLocaleString(),
-            "git-branch": git_branch(),
+            "git-branch": __br,
             "git-user": git_user() + " <" + git_email() + ">",
             "git-version": git_v(),
             "node-version": process.version,
@@ -54,8 +62,6 @@
             lang: process.env['LANG'],
             uname: uname()
         };
-
-        node_meta.build = build;
 
         const meta_files = {
             temp: package_dir + "/package-new.json",
@@ -69,7 +75,7 @@
 
         fs.writeFile(meta_files.temp, JSON.stringify(node_meta, null, 2), function (err) {
             if (err) {
-                console.log("Could not write build metadata file:", meta_files.temp);
+                console.log("//NBN\\\\ :: Could not write build metadata file:", meta_files.temp);
                 return console.log(err);
             } else {
                 fs.renameSync(meta_files.node, meta_files.backup);
@@ -78,6 +84,7 @@
             }
         });
 
+        console.log("//NBN\\\\ :: Build metadata captured.");
     }
 
     let uname = command_matcher("uname");

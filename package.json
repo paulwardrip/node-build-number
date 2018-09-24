@@ -26,15 +26,19 @@
     "deasync": "^0.1.13"
   },
   "build": {
-    "number": 24,
-    "timestamp": "2018-9-24 03:38:53",
+    "unique": "node-build-number:v0.1.1-master[build:30]",
+    "number": 30,
+    "timestamp": "2018-9-24 04:10:24",
     "git-branch": "master",
     "git-user": "Paul Wardrip <pwardrip@gmail.com>",
-    "git-version": "2.6.2",
+    "git-version": "2.15.0",
     "node-version": "v8.9.4",
     "computer": "COCOON",
     "os": "Windows_NT",
     "arch": "AMD64",
-    "user": "digit"
+    "user": "digit",
+    "shell": "/bin/bash",
+    "lang": "en_US.UTF-8",
+    "uname": "CYGWIN_NT-10.0"
   }
 }
