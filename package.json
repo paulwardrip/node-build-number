@@ -18,17 +18,11 @@
   ],
   "author": "Paul Wardrip <pwardrip@gmail.com>",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/paulwardrip/node-build-number/issues"
-  },
-  "homepage": "https://github.com/paulwardrip/node-build-number#readme",
-  "dependencies": {
-    "deasync": "^0.1.13"
-  },
+  "homepage": "https://github.com/paulwardrip/node-build-number",
   "build": {
-    "unique": "node-build-number:v0.1.1-master[build:30]",
-    "number": 30,
-    "timestamp": "2018-9-24 04:10:24",
+    "unique": "node-build-number:v0.1.1-master[build:32]",
+    "number": 32,
+    "timestamp": "2018-9-24 04:21:57",
     "git-branch": "master",
     "git-user": "Paul Wardrip <pwardrip@gmail.com>",
     "git-version": "2.15.0",
