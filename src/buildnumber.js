@@ -1,90 +1,113 @@
 "use strict";
 
-(()=>{
+(() => {
 
     const fs = require("fs");
     const path = require('path');
 
     const sh = require('./shell-command');
 
-    const resolve_package_metadata = ()=>{
-        const suffix = "/package.json";
+    const package_file = "/package.json";
+
+    const resolve_package_metadata = () => {
 
         const package_resolvers = [
-            ()=> {
+            () => {
                 return path.dirname(require.main.filename);
             },
 
-            ()=> {
+            () => {
                 return process.cwd();
             },
 
-            ()=> {
+            () => {
                 return "..";
             }
         ];
 
         for (let prix = 0; prix < package_resolvers.length; prix++) {
-            let where = package_resolvers[prix]() + suffix;
-            if (fs.existsSync(where)) {
-                return require(where);
+            let where = package_resolvers[prix]();
+            if (fs.existsSync(where + package_file)) {
+                return where;
             }
         }
 
         throw new Error("Could not locate package.json")
     };
 
-    const node_meta = resolve_package_metadata();
+    const package_dir = resolve_package_metadata();
+    const node_meta = require(package_dir + package_file);
 
     function write_meta() {
         let build = {
+            number: (!node_meta.build ? 1 : node_meta.build.number + 1),
+            timestamp: new Date().toLocaleString(),
+            "git-branch": git_branch(),
+            "git-user": git_user() + " <" + git_email() + ">",
+            "git-version": git_v(),
+            "node-version": process.version,
             computer: process.env['COMPUTERNAME'],
             os: process.env['OS'],
             arch: process.env['PROCESSOR_ARCHITECTURE'],
-            user: process.env['USERNAME'],
-            timestamp: new Date()
+            user: process.env['USERNAME'] || process.env['USER'],
+            shell: process.env['SHELL'],
+            lang: process.env['LANG'],
+            uname: uname()
         };
-
-        build.number = (!node_meta.build ? 1 : node_meta.build.number + 1);
 
         node_meta.build = build;
 
         const meta_files = {
-            temp: package_dir + "package-new.json",
-            backup: package_dir + "package-back.json",
-            node: package_dir + "package.json"
+            temp: package_dir + "/package-new.json",
+            backup: package_dir + "/package-back.json",
+            node: package_dir + package_file
         };
 
         if (fs.existsSync(meta_files.backup)) {
-            fs.rmdirSync(meta_files.backup);
+            fs.unlinkSync(meta_files.backup);
         }
 
-        fs.writeFile(p_a, JSON.stringify(node_meta, null, 2), function(err) {
+        fs.writeFile(meta_files.temp, JSON.stringify(node_meta, null, 2), function (err) {
             if (err) {
                 console.log("Could not write build metadata file:", meta_files.temp);
                 return console.log(err);
             } else {
                 fs.renameSync(meta_files.node, meta_files.backup);
                 fs.renameSync(meta_files.temp, meta_files.node);
+                fs.unlinkSync(meta_files.backup);
             }
         });
 
     }
 
-    function commit() {
+    let uname = command_matcher("uname");
+    let git_branch = command_matcher("git", ["branch"], /[*]\s(\w*)/);
+    let git_user = command_matcher("git", ["config", "user.name"]);
+    let git_email = command_matcher("git", ["config", "user.email"]);
+    let git_v = command_matcher("git", ["--version"], /.*([0-9]+\.[0-9]+\.[0-9]+).*/);
 
-    }
+    function command_matcher(cmd, args, pattern) {
+        return ()=> {
+            let out = sh.sync(cmd, args);
+            let soutstr = (out.stdout) ? `${out.stdout}` : ((out.stderr) ? `${out.stderr}` : null);
 
-    function branch() {
-        sh("git", ["branch"]).stderr((data)=>{
-            console.log(data);
-            let matcher = /^\w*(\*.*)\w*$/.match(data);
-            if (matcher.length > 1) {
-                console.log("Branch:", matcher[1]);
+            if (pattern) {
+                let lines = soutstr.split('\n');
+                for (let idx in lines) {
+                    let data = lines[idx];
+                    if (data) {
+                        let matcher = data.match(pattern);
+                        if (matcher.length > 1) {
+                            return (matcher[1]);
+                        }
+                    }
+                }
+            } else if (soutstr) {
+                return (soutstr).trim();
             }
-        });
+        }
     }
 
-    branch();
+    write_meta();
 
 })();

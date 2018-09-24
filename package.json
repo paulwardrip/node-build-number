@@ -2,9 +2,9 @@
   "name": "node-build-number",
   "version": "0.1.1",
   "description": "A node extension for capturing build number, timestamp and other metadata into the npm package.json",
-  "main": "buildnumber.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "main": "src/buildnumber.js",
+  "bin": {
+    "nbn": "src/buildnumber.js"
   },
   "repository": {
     "type": "git",
@@ -21,5 +21,20 @@
   "bugs": {
     "url": "https://github.com/paulwardrip/node-build-number/issues"
   },
-  "homepage": "https://github.com/paulwardrip/node-build-number#readme"
+  "homepage": "https://github.com/paulwardrip/node-build-number#readme",
+  "dependencies": {
+    "deasync": "^0.1.13"
+  },
+  "build": {
+    "number": 24,
+    "timestamp": "2018-9-24 03:38:53",
+    "git-branch": "master",
+    "git-user": "Paul Wardrip <pwardrip@gmail.com>",
+    "git-version": "2.6.2",
+    "node-version": "v8.9.4",
+    "computer": "COCOON",
+    "os": "Windows_NT",
+    "arch": "AMD64",
+    "user": "digit"
+  }
 }
