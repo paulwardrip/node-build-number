@@ -38,10 +38,10 @@
         throw new Error("Could not locate package.json")
     };
 
-    const package_dir = resolve_package_metadata();
-    const node_meta = require(package_dir + package_file);
+    function write_meta(pathToPackageJson) {
 
-    function write_meta() {
+        const package_dir = pathToPackageJson || resolve_package_metadata();
+        const node_meta = require(package_dir + package_file);
 
         let __br = git_branch();
         let __n = (!node_meta.build ? 1 : node_meta.build.number + 1);
@@ -115,6 +115,11 @@
         }
     }
 
-    write_meta();
-
+    if (require.main = module) {
+        write_meta();
+    } else {
+        module.exports = {
+            writeMetadata: write_meta
+        }
+    }
 })();
