@@ -14,6 +14,8 @@
 
     const package_file = "/package.json";
 
+    const deasync = require("deasync");
+
     commander.version(nbn_meta.version)
         .option("-a, --auto-commit")
         .parse(process.argv);
@@ -42,7 +44,7 @@
             }
         }
 
-        throw new Error("Could not locate package.json")
+        throw new Error("NBN !! Could not locate package.json")
     };
 
     function write_meta(pathToPackageJson) {
@@ -53,10 +55,17 @@
         const git_email = command_matcher("git", ["config", "user.email"]);
         const git_v = command_matcher("git", ["--version"], /.*([0-9]+\.[0-9]+\.[0-9]+).*/);
 
-        const git_p = command_log("git", ["push"]);
-
         const package_dir = pathToPackageJson || resolve_package_metadata();
         const node_meta = require(package_dir + package_file);
+
+
+        const git_pull = command_log("git", ["pull"]);
+        const git_push = com_respond("git", ["push"], (data, cb) => {
+            if (/Username/.test(data)) {
+                console.log("NBN !! Git prompted for info:\n", data, "\n****");
+                cb(new Error("Git authentication not setup, complete a git push from the console in: " + package_dir));
+            }
+        });
 
         const __br = git_branch();
         const __n = (!node_meta.build ? 1 : node_meta.build.number + 1);
@@ -84,6 +93,9 @@
             node: package_dir + package_file
         };
 
+        if (commander.autoCommit) {
+            git_pull();
+        }
         if (fs.existsSync(meta_files.backup)) {
             fs.unlinkSync(meta_files.backup);
         }
@@ -92,28 +104,41 @@
             if (err) {
                 console.log("//NBN\\\\ :: Could not write build metadata file:", meta_files.temp);
                 return console.log(err);
+
             } else {
                 fs.renameSync(meta_files.node, meta_files.backup);
                 fs.renameSync(meta_files.temp, meta_files.node);
                 fs.unlinkSync(meta_files.backup);
+
+
+
+                console.log("//NBN\\\\ :: Build metadata captured.");
+
+                if (commander.autoCommit) {
+                    const git_c = command_log("git", ["commit", "-m", "nbn metadata: " + node_meta.build.unique + ""]);
+                    git_c();
+                    git_push();
+                }
             }
         });
-
-        console.log("//NBN\\\\ :: Build metadata captured.");
-
-        if (commander.autoCommit) {
-            const git_c = command_log("git", ["commit", "-m", "nbn metadata: " + node_meta.build.unique]);
-            git_c();
-            git_p();
-        }
     }
 
     function command_log(cmd, args) {
-        return () => {
-            let out = sh.sync(cmd, args);
-            console.log(`${out.stdout}`);
-            console.log(`${out.stderr}`);
+        return()=> {
+            sh.sync(cmd, args);
         }
+    }
+
+    function com_respond(cmd, args, f) {
+        let construct = (c) => {
+            let dh = (data)=>{
+                f(data, c);
+            };
+            sh.async(cmd, args).stdout(dh).stderr(dh).close((code)=>{
+               c(null, code);
+            });
+        };
+        return deasync(construct);
     }
 
     function command_matcher(cmd, args, pattern) {
