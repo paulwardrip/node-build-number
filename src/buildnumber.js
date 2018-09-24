@@ -8,8 +8,15 @@
     const path = require('path');
 
     const sh = require('./shell-command');
+    const commander = require("commander");
+
+    const nbn_meta = require("../package.json");
 
     const package_file = "/package.json";
+
+    commander.version(nbn_meta.version)
+        .option("-a, --auto-commit")
+        .parse(process.argv);
 
     const resolve_package_metadata = () => {
 
@@ -40,11 +47,19 @@
 
     function write_meta(pathToPackageJson) {
 
+        const uname = command_matcher("uname");
+        const git_branch = command_matcher("git", ["branch"], /[*]\s(\w*)/);
+        const git_user = command_matcher("git", ["config", "user.name"]);
+        const git_email = command_matcher("git", ["config", "user.email"]);
+        const git_v = command_matcher("git", ["--version"], /.*([0-9]+\.[0-9]+\.[0-9]+).*/);
+
+        const git_p = command_log("git", ["push"]);
+
         const package_dir = pathToPackageJson || resolve_package_metadata();
         const node_meta = require(package_dir + package_file);
 
-        let __br = git_branch();
-        let __n = (!node_meta.build ? 1 : node_meta.build.number + 1);
+        const __br = git_branch();
+        const __n = (!node_meta.build ? 1 : node_meta.build.number + 1);
 
         node_meta.build = {
             unique: node_meta.name + ":v" + node_meta.version + "-" + __br + "[build:" + __n + "]",
@@ -85,13 +100,21 @@
         });
 
         console.log("//NBN\\\\ :: Build metadata captured.");
+
+        if (commander.autoCommit) {
+            const git_c = command_log("git", ["commit", "-m", "nbn metadata: " + node_meta.build.unique]);
+            git_c();
+            git_p();
+        }
     }
 
-    let uname = command_matcher("uname");
-    let git_branch = command_matcher("git", ["branch"], /[*]\s(\w*)/);
-    let git_user = command_matcher("git", ["config", "user.name"]);
-    let git_email = command_matcher("git", ["config", "user.email"]);
-    let git_v = command_matcher("git", ["--version"], /.*([0-9]+\.[0-9]+\.[0-9]+).*/);
+    function command_log(cmd, args) {
+        return () => {
+            let out = sh.sync(cmd, args);
+            console.log(`${out.stdout}`);
+            console.log(`${out.stderr}`);
+        }
+    }
 
     function command_matcher(cmd, args, pattern) {
         return ()=> {

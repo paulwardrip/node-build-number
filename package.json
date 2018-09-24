@@ -20,19 +20,19 @@
   "license": "ISC",
   "homepage": "https://github.com/paulwardrip/node-build-number",
   "build": {
-    "unique": "node-build-number:v0.1.1-master[build:32]",
-    "number": 32,
-    "timestamp": "2018-9-24 04:21:57",
+    "unique": "node-build-number:v0.1.1-master[build:34]",
+    "number": 34,
+    "timestamp": "2018-9-24 04:59:58",
     "git-branch": "master",
     "git-user": "Paul Wardrip <pwardrip@gmail.com>",
-    "git-version": "2.15.0",
+    "git-version": "2.6.2",
     "node-version": "v8.9.4",
     "computer": "COCOON",
     "os": "Windows_NT",
     "arch": "AMD64",
-    "user": "digit",
-    "shell": "/bin/bash",
-    "lang": "en_US.UTF-8",
-    "uname": "CYGWIN_NT-10.0"
+    "user": "digit"
+  },
+  "dependencies": {
+    "commander": "^2.18.0"
   }
 }
