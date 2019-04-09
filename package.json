@@ -1,6 +1,6 @@
 {
   "name": "node-build-number",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A node extension for capturing build number, timestamp and other metadata into the npm package.json",
   "main": "src/buildnumber.js",
   "bin": {
