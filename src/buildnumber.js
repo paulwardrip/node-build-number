@@ -71,11 +71,19 @@
         const __n = (!node_meta.build ? 1 : node_meta.build.number + 1);
 
         node_meta.build = {
-            unique: node_meta.name + ":v" + node_meta.version + "-" + __br + "[build:" + __n + "]",
+            unique: node_meta.name + ":v" + node_meta.version + (()=> {
+                if (typeof __br !== 'undefined')
+                    return "-" + __br;
+                else
+                    return "";
+            })() + "[build:" + __n + "]",
             number: __n,
             timestamp: new Date().toLocaleString(),
             "git-branch": __br,
-            "git-user": git_user() + " <" + git_email() + ">",
+            "git-user": (()=>{
+                let guser = git_user(), gemail = git_email();
+                if (typeof guser !== 'undefined' && typeof gemail !== 'undefined') return guser + " <" + gemail + ">"
+            })(),
             "git-version": git_v(),
             "node-version": process.version,
             computer: process.env['COMPUTERNAME'],
@@ -112,7 +120,7 @@
 
 
 
-                console.log("//NBN\\\\ :: Build metadata captured.");
+                console.log("//NBN\\\\ :: Build metadata updated:", node_meta.build.unique);
 
                 if (commander.autoCommit) {
                     const git_c = command_log("git", ["commit", "-m", "nbn metadata: " + node_meta.build.unique + ""]);
