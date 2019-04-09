@@ -1,3 +1,4 @@
 .idea/
 node_modules
 package-back.json
+yarn-error.log
