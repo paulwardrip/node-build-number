@@ -160,7 +160,7 @@
                     let data = lines[idx];
                     if (data) {
                         let matcher = data.match(pattern);
-                        if (matcher.length > 1) {
+                        if (typeof matcher !== 'undefined' && matcher.length > 1) {
                             return (matcher[1]);
                         }
                     }
