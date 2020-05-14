@@ -171,7 +171,7 @@
         }
     }
 
-    if (require.main = module) {
+    if (require.main == module) {
         write_meta();
     } else {
         module.exports = {
