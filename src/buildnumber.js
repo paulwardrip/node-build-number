@@ -171,7 +171,7 @@ return function() {
                     let data = lines[idx];
                     if (data) {
                         let matcher = data.match(pattern);
-                        if (matcher.length > 1) {
+                        if (matcher && matcher.length > 1) {
                             return (matcher[1]);
                         }
                     }
