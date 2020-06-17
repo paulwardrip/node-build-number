@@ -14,10 +14,11 @@
 
     const package_file = "/package.json";
 
-    const deasync = require("deasync");
-
     commander.version(nbn_meta.version)
-        .option("-a, --auto-commit")
+        .option("--auto-commit")
+        .option("--major")
+        .option("--minor")
+        .option("--rev")
         .parse(process.argv);
 
     const resolve_package_metadata = () => {
@@ -60,12 +61,24 @@
 
 
         const git_pull = command_log("git", ["pull"]);
-        const git_push = com_respond("git", ["push"], (data, cb) => {
-            if (/Username/.test(data)) {
-                console.log("NBN !! Git prompted for info:\n", data, "\n****");
-                cb(new Error("Git authentication not setup, complete a git push from the console in: " + package_dir));
+        const git_push = com_respond("git", ["push"], (e, stderr, stdout) => {
+            if (/Username/.test(stderr)) {
+                console.log("NBN !! Git prompted for info:\n", stderr, "\n****");
+                throw new Error("Git authentication not setup, complete a git push from the console in: " + package_dir);
             }
         });
+
+        let vspl = node_meta.version.split(".");
+        if (commander.major) {
+            node_meta.version = `${parseInt(vspl[0])+1}.0.0`;
+            node_meta.build = undefined;
+        } else if (commander.minor) {
+            node_meta.version = `${vspl[0]}.${parseInt(vspl[1])+1}.0`;
+            node_meta.build = undefined;
+        } else if (commander.rev) {
+            node_meta.version = `${vspl[0]}.${vspl[1]}.${parseInt(vspl[2])+1}`;
+            node_meta.build = undefined;
+        }
 
         const __br = git_branch();
         const __n = (!node_meta.build ? 1 : node_meta.build.number + 1);
@@ -124,7 +137,9 @@
 
                 if (commander.autoCommit) {
                     const git_c = command_log("git", ["commit", "-m", "nbn metadata: " + node_meta.build.unique + ""]);
+
                     git_c();
+                    git_pull();
                     git_push();
                 }
             }
@@ -138,15 +153,11 @@
     }
 
     function com_respond(cmd, args, f) {
-        let construct = (c) => {
-            let dh = (data)=>{
-                f(data, c);
-            };
-            sh.async(cmd, args).stdout(dh).stderr(dh).close((code)=>{
-               c(null, code);
-            });
-        };
-        return deasync(construct);
+return function() {
+    let res = sh.sync(cmd, args);
+
+    f(res.error, res.stderr.data, res.stdout.data)
+}
     }
 
     function command_matcher(cmd, args, pattern) {
@@ -171,7 +182,7 @@
         }
     }
 
-    if (require.main == module) {
+    if (require.main === module) {
         write_meta();
     } else {
         module.exports = {
