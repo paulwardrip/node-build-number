@@ -20,9 +20,9 @@
   "license": "ISC",
   "homepage": "https://github.com/paulwardrip/node-build-number",
   "build": {
-    "unique": "node-build-number:v1.0.1-master[build:5]",
-    "number": 5,
-    "timestamp": "6/19/2020, 2:45:39 PM",
+    "unique": "node-build-number:v1.0.1-master[build:6]",
+    "number": 6,
+    "timestamp": "6/19/2020, 3:20:12 PM",
     "git-branch": "master",
     "git-user": "Paul Wardrip <pwardrip@gmail.com>",
     "git-version": "2.26.2",

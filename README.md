@@ -11,7 +11,7 @@ and the build number incremented.
 NBN also generates a unique build ID example: `node-build-number:v1.0.0-master[build:4]`
 from the project name, version, build number and current branch (only supports git at this time).
 This ID can be useful when you need to identify builds, it will be in the package.json of your project code. 
-Displaying it in the hemader or footer of a web application in dev or testing will tell you whether a build 
+Displaying it in the header or footer of a web application in dev or testing will tell you whether a build 
 you deployed is successfully running, or if something is wrong.
 
 ## Example of build metadata in package.json
