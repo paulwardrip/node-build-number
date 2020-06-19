@@ -3,6 +3,10 @@ This package (abbreviated as "NBN") updates the `package.json` of your project w
 You only need to add the **nbn** cli command to your build steps to have the build info updated,
 and the build number incremented. 
 
+    "scripts": {
+        "build": "nbn && npm run project-dist-task"
+    }
+
 ### Unique ID
 NBN also generates a unique build ID example: `node-build-number:v1.0.0-master[build:4]`
 from the project name, version, build number and current branch (only supports git at this time).
